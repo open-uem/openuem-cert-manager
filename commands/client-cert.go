@@ -27,14 +27,14 @@ func generateClientCert(cCtx *cli.Context) error {
 
 	log.Printf("... reading your CA cert PEM file")
 
-	caCert, err := readPEMCertificate(cCtx.String("cacert"))
+	caCert, err := ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading your CA private key PEM file")
 
-	caPrivKey, err := readPEMPrivateKey(cCtx.String("cakey"))
+	caPrivKey, err := ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func generateClientCert(cCtx *cli.Context) error {
 
 	log.Printf("... saving your client certificate")
 
-	err = savePFX(pfxBytes, filepath.Join("certificates", cCtx.String("username")+".pfx"))
+	err = SavePFX(pfxBytes, filepath.Join("certificates", cCtx.String("username")+".pfx"))
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func generateClientCert(cCtx *cli.Context) error {
 }
 
 func NewX509ClientCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x509.Certificate, error) {
-	serialNumber, err := generateSerialNumber()
+	serialNumber, err := GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}

@@ -34,14 +34,14 @@ func generateServerCert(cCtx *cli.Context) error {
 
 	log.Printf("... reading your CA cert PEM file")
 
-	caCert, err := readPEMCertificate(cCtx.String("cacert"))
+	caCert, err := ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading your CA private key PEM file")
 
-	caPrivKey, err := readPEMPrivateKey(cCtx.String("cakey"))
+	caPrivKey, err := ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
@@ -67,13 +67,13 @@ func generateServerCert(cCtx *cli.Context) error {
 
 	log.Printf("... saving your server certificate")
 
-	if err := saveCertificate(certBytes, filepath.Join("certificates", "server.cer")); err != nil {
+	if err := SaveCertificate(certBytes, filepath.Join("certificates", cCtx.String("filename")+".cer")); err != nil {
 		return err
 	}
 
 	log.Printf("... saving your private key")
 
-	if err := savePrivateKey(certPrivKey, filepath.Join("certificates", "server.key")); err != nil {
+	if err := SavePrivateKey(certPrivKey, filepath.Join("certificates", cCtx.String("filename")+".key")); err != nil {
 		return err
 	}
 
@@ -82,7 +82,7 @@ func generateServerCert(cCtx *cli.Context) error {
 }
 
 func NewX509Certificate(cCtx *cli.Context, names []string, caCert *x509.Certificate) (*x509.Certificate, error) {
-	serialNumber, err := generateSerialNumber()
+	serialNumber, err := GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}
@@ -185,6 +185,11 @@ func generateServerCertFlags() []cli.Flag {
 			Name:  "days-valid",
 			Value: 0,
 			Usage: "the number of days for which the certificate will be valid",
+		},
+		&cli.StringFlag{
+			Name:  "filename",
+			Value: "server",
+			Usage: "the name to be used for the certificate and private key files",
 		},
 	}
 }

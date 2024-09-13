@@ -32,14 +32,14 @@ func generateWildcardServerCert(cCtx *cli.Context) error {
 
 	log.Printf("... reading your CA cert PEM file")
 
-	caCert, err := readPEMCertificate(cCtx.String("cacert"))
+	caCert, err := ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading your CA private key PEM file")
 
-	caPrivKey, err := readPEMPrivateKey(cCtx.String("cakey"))
+	caPrivKey, err := ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
@@ -65,13 +65,13 @@ func generateWildcardServerCert(cCtx *cli.Context) error {
 
 	log.Printf("... saving your wildcard certificate")
 
-	if err := saveCertificate(certBytes, filepath.Join("certificates", "wildcard."+domains[0]+".cer")); err != nil {
+	if err := SaveCertificate(certBytes, filepath.Join("certificates", "wildcard.cer")); err != nil {
 		return err
 	}
 
 	log.Printf("... saving your private key")
 
-	if err := savePrivateKey(certPrivKey, filepath.Join("certificates", "wildcard."+domains[0]+".key")); err != nil {
+	if err := SavePrivateKey(certPrivKey, filepath.Join("certificates", "wildcard.key")); err != nil {
 		return err
 	}
 
@@ -80,7 +80,7 @@ func generateWildcardServerCert(cCtx *cli.Context) error {
 }
 
 func NewX509WildcardCertificate(cCtx *cli.Context, domain string, caCert *x509.Certificate) (*x509.Certificate, error) {
-	serialNumber, err := generateSerialNumber()
+	serialNumber, err := GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}

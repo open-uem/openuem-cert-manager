@@ -12,14 +12,15 @@ import (
 	"os"
 )
 
-func generateSerialNumber() (*big.Int, error) {
+func GenerateSerialNumber() (*big.Int, error) {
 	serialNumber, err := rand.Int(rand.Reader, new(big.Int).SetInt64(math.MaxInt64))
 	if err != nil {
 		return nil, err
 	}
 	return serialNumber, nil
 }
-func readPEMCertificate(path string) (*x509.Certificate, error) {
+
+func ReadPEMCertificate(path string) (*x509.Certificate, error) {
 	certBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -38,16 +39,15 @@ func readPEMCertificate(path string) (*x509.Certificate, error) {
 	return cert, nil
 }
 
-func readPEMPrivateKey(path string) (*rsa.PrivateKey, error) {
+func ReadPEMPrivateKey(path string) (*rsa.PrivateKey, error) {
 	privKeyBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
 	privKeyBlock, _ := pem.Decode(privKeyBytes)
-
-	if privKeyBlock.Type != "PRIVATE KEY" || privKeyBlock.Bytes == nil {
-
+	if privKeyBlock.Type != "RSA PRIVATE KEY" || privKeyBlock.Bytes == nil {
+		return nil, fmt.Errorf("file does not content a private key")
 	}
 
 	privKey, err := x509.ParsePKCS1PrivateKey(privKeyBlock.Bytes)
@@ -72,7 +72,7 @@ func savePEM(buf *bytes.Buffer, path string) error {
 	return nil
 }
 
-func savePFX(b []byte, path string) error {
+func SavePFX(b []byte, path string) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -87,7 +87,7 @@ func savePFX(b []byte, path string) error {
 	return nil
 }
 
-func saveCertificate(certBytes []byte, path string) error {
+func SaveCertificate(certBytes []byte, path string) error {
 	certPEM := new(bytes.Buffer)
 	if err := pem.Encode(certPEM, &pem.Block{
 		Type:  "CERTIFICATE",
@@ -103,7 +103,7 @@ func saveCertificate(certBytes []byte, path string) error {
 	return nil
 }
 
-func savePrivateKey(certPrivKey *rsa.PrivateKey, path string) error {
+func SavePrivateKey(certPrivKey *rsa.PrivateKey, path string) error {
 	certPrivKeyPEM := new(bytes.Buffer)
 	if err := pem.Encode(certPrivKeyPEM, &pem.Block{
 		Type:  "RSA PRIVATE KEY",

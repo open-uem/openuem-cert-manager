@@ -41,13 +41,13 @@ func generateCA(cCtx *cli.Context) error {
 	}
 
 	log.Printf("... saving your CA certificate")
-	if err := saveCertificate(caBytes, filepath.Join("certificates", "ca.cer")); err != nil {
+	if err := SaveCertificate(caBytes, filepath.Join("certificates", "ca.cer")); err != nil {
 		return nil
 	}
 
 	log.Printf("... saving your CA private key")
 
-	if err := savePrivateKey(caPrivKey, filepath.Join("certificates", "ca.key")); err != nil {
+	if err := SavePrivateKey(caPrivKey, filepath.Join("certificates", "ca.key")); err != nil {
 		return err
 	}
 
@@ -56,7 +56,7 @@ func generateCA(cCtx *cli.Context) error {
 }
 
 func NewCAX509Certificate(cCtx *cli.Context) (*x509.Certificate, error) {
-	serialNumber, err := generateSerialNumber()
+	serialNumber, err := GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}
