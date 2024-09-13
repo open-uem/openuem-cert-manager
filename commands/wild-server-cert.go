@@ -75,7 +75,7 @@ func generateWildcardServerCert(cCtx *cli.Context) error {
 		return err
 	}
 
-	log.Printf("✅ Done! Your server certificate and its private key has been stored in the certificates folder. Create a backup of these files and store them in a safe and secure place\n\n")
+	log.Printf("✅ Done! Your wildcard certificate and its private key has been stored in the certificates folder. Create a backup of these files and store them in a safe and secure place\n\n")
 	return nil
 }
 
