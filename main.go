@@ -22,10 +22,13 @@ func main() {
 	}
 }
 
+// TODO Generate TOML, INI or similar file to store organizations information
+
 func getCommands() []*cli.Command {
 	return []*cli.Command{
 		commands.CreateCA(),
 		commands.CreateServerCertificate(),
 		commands.CreateClientCertificate(),
+		commands.CreateWilcardServerCertificate(),
 	}
 }

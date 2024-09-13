@@ -1,6 +1,6 @@
 # OpenUEM - Cert Manager
 
-Repository containing the OpenUEM certificate tools used to manage the project's certificates requirements
+Repository containing the OpenUEM certificate tools used to manage the project's certificates requirements. It contains the command-line tools to generate and the library that will be used from the OpenUEM console.
 
 This repository will be used as a git submodule from other OpenUEM's repositories
 
