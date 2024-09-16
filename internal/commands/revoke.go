@@ -32,11 +32,17 @@ func revokeCertFlags() []cli.Flag {
 			EnvVars:  []string{"DATABASE_URL"},
 			Required: true,
 		},
-		&cli.StringFlag{
+		&cli.IntFlag{
 			Name:    "reason",
-			Value:   "certificates/ca.key",
-			Usage:   "the reason why this digital certificate has to be revoked (example 'Associated user has been removed from console')",
+			Value:   0,
+			Usage:   "a number indicating the reason why this digital certificate has to be revoked. These are the possible reasons: 0 - Unspecified, 1 - KeyCompromise, 2 - CACompromise, 4 - Superseded, 5 - CessationOfOperation, 6 - CertificateHold, 8 - RemoveFromCRL, 9 - PrivilegeWithdrawn, 10 - AACompromise",
 			EnvVars: []string{"REVOCATION_REASON"},
+		},
+		&cli.StringFlag{
+			Name:    "info",
+			Value:   "",
+			Usage:   "a text including more information about the revocation",
+			EnvVars: []string{"REVOCATION_INFO"},
 		},
 	}
 }
@@ -44,18 +50,23 @@ func revokeCertFlags() []cli.Flag {
 func revokeCert(cCtx *cli.Context) error {
 	model, err := models.New(cCtx.String("dburl"))
 	if err != nil {
-		log.Fatal(fmt.Errorf("could not connect to database, reason: %s", err.Error()))
+		return fmt.Errorf("could not connect to database, reason: %s", err.Error())
 	}
 	log.Printf("... connected to database")
 
 	serial, err := strconv.ParseInt("0x"+cCtx.String("serial"), 0, 64)
 	if err != nil {
-		log.Fatal(fmt.Errorf("could not parse the certificate serial number, reason: %s", err.Error()))
+		return fmt.Errorf("could not parse the certificate serial number, reason: %s", err.Error())
 	}
 	log.Printf("... certificate serial number parsed successfully")
 
-	if err := model.AddRevocation(serial, cCtx.String("reason")); err != nil {
-		log.Fatal(fmt.Errorf("could not save the revoked certificate in the database, reason: %s", err.Error()))
+	reason := cCtx.Int("reason")
+	if reason < 0 || reason == 7 || reason > 10 {
+		return fmt.Errorf("invalid reason")
+	}
+
+	if err := model.AddRevocation(serial, reason, cCtx.String("info")); err != nil {
+		return fmt.Errorf("could not save the revoked certificate in the database, reason: %s", err.Error())
 	}
 	log.Printf("... saving revocation information to the database")
 

@@ -100,6 +100,7 @@ func NewX509ClientCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (
 		NotAfter:    time.Now().AddDate(cCtx.Int("years-valid"), cCtx.Int("months-valid"), cCtx.Int("days-valid")),
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 		KeyUsage:    x509.KeyUsageDigitalSignature,
+		OCSPServer:  []string{cCtx.String("ocsp")},
 	}, nil
 }
 
@@ -167,6 +168,11 @@ func generateClientCertFlags() []cli.Flag {
 			Name:  "days-valid",
 			Value: 0,
 			Usage: "the number of days for which the certificate will be valid",
+		},
+		&cli.StringFlag{
+			Name:     "ocsp",
+			Usage:    "the url of the OCSP responder, e.g https://ocsp.example.com",
+			Required: true,
 		},
 	}
 }

@@ -6,6 +6,8 @@ This repository will be used as a git submodule from other OpenUEM's repositorie
 
 References:
 
+- [OCSP RFC 6960](https://datatracker.ietf.org/doc/html/rfc6960)
+- [Revocation reasons](https://rfc-editor.org/rfc/rfc5280.html)
 - [https://go.dev/src/crypto/tls/generate_cert.go](https://go.dev/src/crypto/tls/generate_cert.go)
 - [https://gist.github.com/shaneutt/5e1995295cff6721c89a71d13a71c251](https://gist.github.com/shaneutt/5e1995295cff6721c89a71d13a71c251)
 - [https://github.com/cloudflare/cfssl](https://github.com/cloudflare/cfssl)

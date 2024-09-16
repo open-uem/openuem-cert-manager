@@ -26,10 +26,11 @@ func main() {
 
 func getCommands() []*cli.Command {
 	return []*cli.Command{
-		commands.CreateCA(),
-		commands.CreateServerCertificate(),
 		commands.CreateClientCertificate(),
-		commands.CreateWilcardServerCertificate(),
+		commands.CreateCA(),
+		commands.OCSPResponder(),
 		commands.RevokeCertificate(),
+		commands.CreateServerCertificate(),
+		commands.CreateWilcardServerCertificate(),
 	}
 }
