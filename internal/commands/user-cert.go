@@ -14,18 +14,16 @@ import (
 	"software.sslmate.com/src/go-pkcs12"
 )
 
-func CreateClientCertificate() *cli.Command {
+func CreateUserCertificate() *cli.Command {
 	return &cli.Command{
-		Name:   "client-cert",
-		Usage:  "Generate a client cert for server-based TLS auth signed by your server certificate private key",
-		Action: generateClientCert,
-		Flags:  generateClientCertFlags(),
+		Name:   "user-cert",
+		Usage:  "Generate a user cert and private key PKCS12 file in PFX format to be used OpenUEM console TLS access",
+		Action: generateUserCert,
+		Flags:  generateUserCertFlags(),
 	}
 }
 
-func generateClientCert(cCtx *cli.Context) error {
-	log.Printf("... reading your server cert PEM file")
-
+func generateUserCert(cCtx *cli.Context) error {
 	log.Printf("... reading your CA cert PEM file")
 
 	caCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("cacert"))
@@ -40,19 +38,21 @@ func generateClientCert(cCtx *cli.Context) error {
 		return err
 	}
 
-	log.Printf("... generating your client certificate and its private key")
-
-	cert, err := NewX509ClientCertificate(cCtx, caCert)
-	if err != nil {
-		return err
-	}
+	log.Printf("... generating your user's private key")
 
 	certPrivKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("... creating your client certificate")
+	log.Printf("... generating your user's certificate template")
+
+	cert, err := NewX509UserCertificate(cCtx, caCert)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("... creating your user' certificate")
 
 	certBytes, err := x509.CreateCertificate(rand.Reader, cert, caCert, &certPrivKey.PublicKey, caPrivKey)
 	if err != nil {
@@ -64,23 +64,25 @@ func generateClientCert(cCtx *cli.Context) error {
 		return err
 	}
 
+	log.Printf("... creating your PKCS12 file")
+
 	pfxBytes, err := pkcs12.Modern.Encode(certPrivKey, cert, []*x509.Certificate{caCert}, pkcs12.DefaultPassword)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("... saving your client certificate")
+	log.Printf("... saving your users's PFX file")
 
 	err = openuem_utils.SavePFX(pfxBytes, filepath.Join("certificates", cCtx.String("username")+".pfx"))
 	if err != nil {
 		return err
 	}
 
-	log.Printf("✅ Done! Your client certificate and its private key has been stored in a pfx file inside the certificates folder\n\n")
+	log.Printf("✅ Done! Your user's certificate and its private key has been stored in a pfx file inside the certificates folder\n\n")
 	return nil
 }
 
-func NewX509ClientCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x509.Certificate, error) {
+func NewX509UserCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x509.Certificate, error) {
 	serialNumber, err := openuem_utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
@@ -105,7 +107,7 @@ func NewX509ClientCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (
 	}, nil
 }
 
-func generateClientCertFlags() []cli.Flag {
+func generateUserCertFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:    "cacert",
