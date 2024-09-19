@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/doncicuto/openuem_utils"
 	"github.com/urfave/cli/v2"
 )
 
@@ -41,13 +42,13 @@ func generateCA(cCtx *cli.Context) error {
 	}
 
 	log.Printf("... saving your CA certificate")
-	if err := SaveCertificate(caBytes, filepath.Join("certificates", "ca.cer")); err != nil {
+	if err := openuem_utils.SaveCertificate(caBytes, filepath.Join("certificates", "ca.cer")); err != nil {
 		return nil
 	}
 
 	log.Printf("... saving your CA private key")
 
-	if err := SavePrivateKey(caPrivKey, filepath.Join("certificates", "ca.key")); err != nil {
+	if err := openuem_utils.SavePrivateKey(caPrivKey, filepath.Join("certificates", "ca.key")); err != nil {
 		return err
 	}
 
@@ -56,7 +57,7 @@ func generateCA(cCtx *cli.Context) error {
 }
 
 func NewCAX509Certificate(cCtx *cli.Context) (*x509.Certificate, error) {
-	serialNumber, err := GenerateSerialNumber()
+	serialNumber, err := openuem_utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}

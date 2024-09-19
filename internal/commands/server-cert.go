@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/chmike/domain"
+	"github.com/doncicuto/openuem_utils"
 	"github.com/urfave/cli/v2"
 )
 
@@ -34,14 +35,14 @@ func generateServerCert(cCtx *cli.Context) error {
 
 	log.Printf("... reading your CA cert PEM file")
 
-	caCert, err := ReadPEMCertificate(cCtx.String("cacert"))
+	caCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading your CA private key PEM file")
 
-	caPrivKey, err := ReadPEMPrivateKey(cCtx.String("cakey"))
+	caPrivKey, err := openuem_utils.ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
@@ -67,13 +68,13 @@ func generateServerCert(cCtx *cli.Context) error {
 
 	log.Printf("... saving your server certificate")
 
-	if err := SaveCertificate(certBytes, filepath.Join("certificates", cCtx.String("filename")+".cer")); err != nil {
+	if err := openuem_utils.SaveCertificate(certBytes, filepath.Join("certificates", cCtx.String("filename")+".cer")); err != nil {
 		return err
 	}
 
 	log.Printf("... saving your private key")
 
-	if err := SavePrivateKey(certPrivKey, filepath.Join("certificates", cCtx.String("filename")+".key")); err != nil {
+	if err := openuem_utils.SavePrivateKey(certPrivKey, filepath.Join("certificates", cCtx.String("filename")+".key")); err != nil {
 		return err
 	}
 
@@ -82,7 +83,7 @@ func generateServerCert(cCtx *cli.Context) error {
 }
 
 func NewX509Certificate(cCtx *cli.Context, names []string, caCert *x509.Certificate) (*x509.Certificate, error) {
-	serialNumber, err := GenerateSerialNumber()
+	serialNumber, err := openuem_utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}

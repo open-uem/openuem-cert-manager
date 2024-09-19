@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/doncicuto/openuem_utils"
 	"github.com/urfave/cli/v2"
 )
 
@@ -32,14 +33,14 @@ func generateWildcardServerCert(cCtx *cli.Context) error {
 
 	log.Printf("... reading your CA cert PEM file")
 
-	caCert, err := ReadPEMCertificate(cCtx.String("cacert"))
+	caCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading your CA private key PEM file")
 
-	caPrivKey, err := ReadPEMPrivateKey(cCtx.String("cakey"))
+	caPrivKey, err := openuem_utils.ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
@@ -65,13 +66,13 @@ func generateWildcardServerCert(cCtx *cli.Context) error {
 
 	log.Printf("... saving your wildcard certificate")
 
-	if err := SaveCertificate(certBytes, filepath.Join("certificates", "wildcard.cer")); err != nil {
+	if err := openuem_utils.SaveCertificate(certBytes, filepath.Join("certificates", "wildcard.cer")); err != nil {
 		return err
 	}
 
 	log.Printf("... saving your private key")
 
-	if err := SavePrivateKey(certPrivKey, filepath.Join("certificates", "wildcard.key")); err != nil {
+	if err := openuem_utils.SavePrivateKey(certPrivKey, filepath.Join("certificates", "wildcard.key")); err != nil {
 		return err
 	}
 
@@ -80,7 +81,7 @@ func generateWildcardServerCert(cCtx *cli.Context) error {
 }
 
 func NewX509WildcardCertificate(cCtx *cli.Context, domain string, caCert *x509.Certificate) (*x509.Certificate, error) {
-	serialNumber, err := GenerateSerialNumber()
+	serialNumber, err := openuem_utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}

@@ -6,6 +6,7 @@ require (
 	entgo.io/ent v0.14.1
 	github.com/chmike/domain v1.1.0
 	github.com/doncicuto/openuem_ent v0.0.0-00010101000000-000000000000
+	github.com/doncicuto/openuem_utils v0.0.0-00010101000000-000000000000
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/urfave/cli/v2 v2.27.4
@@ -43,3 +44,5 @@ require (
 )
 
 replace github.com/doncicuto/openuem_ent => ./internal/ent
+
+replace github.com/doncicuto/openuem_utils => ./internal/utils

@@ -12,6 +12,7 @@ import (
 
 	"github.com/doncicuto/openuem-cert-manager/internal/models"
 	"github.com/doncicuto/openuem-cert-manager/internal/server"
+	"github.com/doncicuto/openuem_utils"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sys/windows"
 )
@@ -73,19 +74,19 @@ func startOCSPResponder(cCtx *cli.Context) error {
 	}
 	log.Printf("... connected to database")
 
-	caCert, err := ReadPEMCertificate(cCtx.String("cacert"))
+	caCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 	log.Printf("... reading CA certificate")
 
-	ocspCert, err := ReadPEMCertificate(cCtx.String("ocspcert"))
+	ocspCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("ocspcert"))
 	if err != nil {
 		return err
 	}
 	log.Printf("... reading OCSP responder certificate")
 
-	ocspKey, err := ReadPEMPrivateKey(cCtx.String("ocspkey"))
+	ocspKey, err := openuem_utils.ReadPEMPrivateKey(cCtx.String("ocspkey"))
 	if err != nil {
 		return err
 	}

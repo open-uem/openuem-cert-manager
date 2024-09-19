@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/doncicuto/openuem_utils"
 	"github.com/urfave/cli/v2"
 	"software.sslmate.com/src/go-pkcs12"
 )
@@ -27,14 +28,14 @@ func generateClientCert(cCtx *cli.Context) error {
 
 	log.Printf("... reading your CA cert PEM file")
 
-	caCert, err := ReadPEMCertificate(cCtx.String("cacert"))
+	caCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading your CA private key PEM file")
 
-	caPrivKey, err := ReadPEMPrivateKey(cCtx.String("cakey"))
+	caPrivKey, err := openuem_utils.ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
@@ -70,7 +71,7 @@ func generateClientCert(cCtx *cli.Context) error {
 
 	log.Printf("... saving your client certificate")
 
-	err = SavePFX(pfxBytes, filepath.Join("certificates", cCtx.String("username")+".pfx"))
+	err = openuem_utils.SavePFX(pfxBytes, filepath.Join("certificates", cCtx.String("username")+".pfx"))
 	if err != nil {
 		return err
 	}
@@ -80,7 +81,7 @@ func generateClientCert(cCtx *cli.Context) error {
 }
 
 func NewX509ClientCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x509.Certificate, error) {
-	serialNumber, err := GenerateSerialNumber()
+	serialNumber, err := openuem_utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}
