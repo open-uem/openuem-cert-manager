@@ -27,8 +27,8 @@ func main() {
 func getCommands() []*cli.Command {
 	return []*cli.Command{
 		commands.CreateClientCertificate(),
+		commands.CreateUserCertificate(),
 		commands.CreateCA(),
-		commands.OCSPResponder(),
 		commands.RevokeCertificate(),
 		commands.CreateServerCertificate(),
 		commands.CreateWilcardServerCertificate(),

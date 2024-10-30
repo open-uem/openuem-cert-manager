@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"log"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -41,14 +42,23 @@ func generateCA(cCtx *cli.Context) error {
 		return err
 	}
 
-	log.Printf("... saving your CA certificate")
-	if err := openuem_utils.SaveCertificate(caBytes, filepath.Join("certificates", "ca.cer")); err != nil {
-		return nil
+	path := cCtx.String("dst")
+	if path == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		path = filepath.Join(cwd, "certificates")
 	}
 
-	log.Printf("... saving your CA private key")
+	log.Printf("... saving your CA certificate to %s", filepath.Join(path, "ca.cer"))
+	if err := openuem_utils.SaveCertificate(caBytes, filepath.Join(path, "ca.cer")); err != nil {
+		return err
+	}
 
-	if err := openuem_utils.SavePrivateKey(caPrivKey, filepath.Join("certificates", "ca.key")); err != nil {
+	log.Printf("... saving your CA private key to %s", filepath.Join(path, "ca.key"))
+
+	if err := openuem_utils.SavePrivateKey(caPrivKey, filepath.Join(path, "ca.key")); err != nil {
 		return err
 	}
 
@@ -83,54 +93,49 @@ func NewCAX509Certificate(cCtx *cli.Context) (*x509.Certificate, error) {
 func createCAFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
-			Name:  "name",
-			Value: "OpenUEM CA",
-			Usage: "the name of your CA to identify the root certificate",
+			Name:     "name",
+			Usage:    "the name of your CA to identify the root certificate",
+			Required: true,
 		},
 		&cli.StringFlag{
 			Name:  "org",
-			Value: "My Org",
 			Usage: "organization name associated with this CA",
 		},
 		&cli.StringFlag{
 			Name:  "country",
-			Value: "ES",
 			Usage: "two-letter ISO_3166 country code",
 		},
 		&cli.StringFlag{
 			Name:  "province",
-			Value: "",
 			Usage: "the province your organization is located",
 		},
 		&cli.StringFlag{
 			Name:  "locality",
-			Value: "",
 			Usage: "the locality your organization is located",
 		},
 		&cli.StringFlag{
 			Name:  "address",
-			Value: "",
 			Usage: "the address your organization is located",
 		},
 		&cli.StringFlag{
 			Name:  "postal-code",
-			Value: "",
 			Usage: "the postal code associated with your organization's address",
 		},
 		&cli.IntFlag{
 			Name:  "years-valid",
-			Value: 10,
 			Usage: "the number of years for which the certificate will be valid",
 		},
 		&cli.IntFlag{
 			Name:  "months-valid",
-			Value: 0,
 			Usage: "the number of months for which the certificate will be valid",
 		},
 		&cli.IntFlag{
 			Name:  "days-valid",
-			Value: 0,
 			Usage: "the number of days for which the certificate will be valid",
+		},
+		&cli.StringFlag{
+			Name:  "dst",
+			Usage: "the folder where the certificates will be stored",
 		},
 	}
 }

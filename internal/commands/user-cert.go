@@ -5,10 +5,16 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"fmt"
 	"log"
+	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/doncicuto/openuem-cert-manager/internal/models"
+	"github.com/doncicuto/openuem_ent/certificate"
+	"github.com/doncicuto/openuem_nats"
 	"github.com/doncicuto/openuem_utils"
 	"github.com/urfave/cli/v2"
 	"software.sslmate.com/src/go-pkcs12"
@@ -17,43 +23,63 @@ import (
 func CreateUserCertificate() *cli.Command {
 	return &cli.Command{
 		Name:   "user-cert",
-		Usage:  "Generate a user cert and private key PKCS12 file in PFX format to be used OpenUEM console TLS access",
+		Usage:  "Generate a PKCS12 file in PFX format containing the user cert and its associated private key to be used for OpenUEM console mTLS access",
 		Action: generateUserCert,
 		Flags:  generateUserCertFlags(),
 	}
 }
 
 func generateUserCert(cCtx *cli.Context) error {
-	log.Printf("... reading your CA cert PEM file")
+	log.Printf("... connecting to database")
+	model, err := models.New(cCtx.String("dburl"))
+	if err != nil {
+		return fmt.Errorf("could not connect to database, reason: %s", err.Error())
+	}
 
+	log.Printf("... reading your CA cert PEM file")
 	caCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading your CA private key PEM file")
-
 	caPrivKey, err := openuem_utils.ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... generating your user's private key")
-
 	certPrivKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... generating your user's certificate template")
+	ocspServers := []string{}
+	for _, ocsp := range strings.Split(cCtx.String("ocsp"), ",") {
+		ocspServers = append(ocspServers, strings.TrimSpace(ocsp))
+	}
 
-	cert, err := NewX509UserCertificate(cCtx, caCert)
+	certRequest := openuem_nats.CertificateRequest{
+		Username:       cCtx.String("username"),
+		Organization:   cCtx.String("org"),
+		Country:        cCtx.String("country"),
+		Province:       cCtx.String("province"),
+		Locality:       cCtx.String("locality"),
+		Address:        cCtx.String("address"),
+		PostalCode:     cCtx.String("postal-code"),
+		YearsValid:     cCtx.Int("years-valid"),
+		MonthsValid:    cCtx.Int("years-valid"),
+		DaysValid:      cCtx.Int("days-valid"),
+		OCSPResponders: ocspServers,
+	}
+
+	cert, err := NewX509UserCertificate(certRequest, caCert)
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... creating your user' certificate")
-
 	certBytes, err := x509.CreateCertificate(rand.Reader, cert, caCert, &certPrivKey.PublicKey, caPrivKey)
 	if err != nil {
 		return err
@@ -66,14 +92,33 @@ func generateUserCert(cCtx *cli.Context) error {
 
 	log.Printf("... creating your PKCS12 file")
 
-	pfxBytes, err := pkcs12.Modern.Encode(certPrivKey, cert, []*x509.Certificate{caCert}, pkcs12.DefaultPassword)
+	pass := cCtx.String("pass")
+	if pass == "" {
+		pass = pkcs12.DefaultPassword
+	}
+	pfxBytes, err := pkcs12.Modern.Encode(certPrivKey, cert, []*x509.Certificate{caCert}, pass)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("... saving certificate info to database")
+	err = model.SaveCertificate(cert.SerialNumber.Int64(), certificate.Type("user"), cCtx.String("description"), cert.NotAfter, true, certRequest.Username)
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... saving your users's PFX file")
 
-	err = openuem_utils.SavePFX(pfxBytes, filepath.Join("certificates", cCtx.String("username")+".pfx"))
+	path := cCtx.String("dst")
+	if path == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		path = filepath.Join(cwd, "certificates")
+	}
+
+	err = openuem_utils.SavePFX(pfxBytes, filepath.Join(path, cCtx.String("username")+".pfx"))
 	if err != nil {
 		return err
 	}
@@ -82,7 +127,7 @@ func generateUserCert(cCtx *cli.Context) error {
 	return nil
 }
 
-func NewX509UserCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x509.Certificate, error) {
+func NewX509UserCertificate(certRequest openuem_nats.CertificateRequest, serverCert *x509.Certificate) (*x509.Certificate, error) {
 	serialNumber, err := openuem_utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
@@ -90,20 +135,20 @@ func NewX509UserCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x
 	return &x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			CommonName:    cCtx.String("username"),
-			Organization:  []string{cCtx.String("org")},
-			Country:       []string{cCtx.String("country")},
-			Province:      []string{cCtx.String("province")},
-			Locality:      []string{cCtx.String("locality")},
-			StreetAddress: []string{cCtx.String("address")},
-			PostalCode:    []string{cCtx.String("postal-code")},
+			CommonName:    certRequest.Username,
+			Organization:  []string{certRequest.Organization},
+			Country:       []string{certRequest.Country},
+			Province:      []string{certRequest.Province},
+			Locality:      []string{certRequest.Locality},
+			StreetAddress: []string{certRequest.Address},
+			PostalCode:    []string{certRequest.PostalCode},
 		},
 		Issuer:      serverCert.Subject,
 		NotBefore:   time.Now().Add(-5 * time.Minute).UTC(),
-		NotAfter:    time.Now().AddDate(cCtx.Int("years-valid"), cCtx.Int("months-valid"), cCtx.Int("days-valid")),
+		NotAfter:    time.Now().AddDate(certRequest.YearsValid, certRequest.MonthsValid, certRequest.DaysValid),
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 		KeyUsage:    x509.KeyUsageDigitalSignature,
-		OCSPServer:  []string{cCtx.String("ocsp")},
+		OCSPServer:  certRequest.OCSPResponders,
 	}, nil
 }
 
@@ -175,7 +220,27 @@ func generateUserCertFlags() []cli.Flag {
 		&cli.StringFlag{
 			Name:     "ocsp",
 			Usage:    "the url of the OCSP responder, e.g https://ocsp.example.com",
+			EnvVars:  []string{"OCSP"},
 			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     "dburl",
+			Usage:    "the Postgres database connection url e.g (postgres://user:password@host:5432/openuem)",
+			EnvVars:  []string{"DATABASE_URL"},
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:  "description",
+			Value: "",
+			Usage: "an optional description for this certificate",
+		},
+		&cli.StringFlag{
+			Name:  "dst",
+			Usage: "the folder where the certificates will be stored",
+		},
+		&cli.StringFlag{
+			Name:  "pass",
+			Usage: "the password that will be asked when the certificates is imported (default: changeit)",
 		},
 	}
 }

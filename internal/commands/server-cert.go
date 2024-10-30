@@ -5,12 +5,18 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"fmt"
 	"log"
+	"net"
+	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/chmike/domain"
+	"github.com/doncicuto/openuem-cert-manager/internal/models"
+	"github.com/doncicuto/openuem_ent/certificate"
 	"github.com/doncicuto/openuem_utils"
 	"github.com/urfave/cli/v2"
 )
@@ -25,12 +31,26 @@ func CreateServerCertificate() *cli.Command {
 }
 
 func generateServerCert(cCtx *cli.Context) error {
+	log.Printf("... connecting to database")
+	model, err := models.New(cCtx.String("dburl"))
+	if err != nil {
+		return fmt.Errorf("could not connect to database, reason: %s", err.Error())
+	}
 
 	log.Printf("... validating your DNS names")
 
 	dnsNames, err := validateDNSNames(cCtx.String("dns-names"))
 	if err != nil {
 		return err
+	}
+
+	path := cCtx.String("dst")
+	if path == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		path = filepath.Join(cwd, "certificates")
 	}
 
 	log.Printf("... reading your CA cert PEM file")
@@ -68,17 +88,23 @@ func generateServerCert(cCtx *cli.Context) error {
 
 	log.Printf("... saving your server certificate")
 
-	if err := openuem_utils.SaveCertificate(certBytes, filepath.Join("certificates", cCtx.String("filename")+".cer")); err != nil {
+	if err := openuem_utils.SaveCertificate(certBytes, filepath.Join(path, cCtx.String("filename")+".cer")); err != nil {
 		return err
 	}
 
 	log.Printf("... saving your private key")
 
-	if err := openuem_utils.SavePrivateKey(certPrivKey, filepath.Join("certificates", cCtx.String("filename")+".key")); err != nil {
+	if err := openuem_utils.SavePrivateKey(certPrivKey, filepath.Join(path, cCtx.String("filename")+".key")); err != nil {
 		return err
 	}
 
-	log.Printf("✅ Done! Your server certificate and its private key has been stored in the certificates folder. Create a backup of these files and store them in a safe and secure place\n\n")
+	log.Printf("... saving certificate info to database")
+	err = model.SaveCertificate(cert.SerialNumber.Int64(), certificate.Type(cCtx.String("filename")), cCtx.String("description"), cert.NotAfter, false, "")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("✅ Done! Your server certificate and its private key has been stored in the certificates folder. Create a backup of these files\n\n")
 	return nil
 }
 
@@ -86,6 +112,21 @@ func NewX509Certificate(cCtx *cli.Context, names []string, caCert *x509.Certific
 	serialNumber, err := openuem_utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
+	}
+
+	extKeyUsage := []x509.ExtKeyUsage{}
+	ocspServers := []string{}
+	if cCtx.Bool("sign-ocsp") {
+		extKeyUsage = append(extKeyUsage, x509.ExtKeyUsageOCSPSigning)
+	} else {
+		extKeyUsage = append(extKeyUsage, x509.ExtKeyUsageServerAuth)
+		if cCtx.Bool("client-too") {
+			extKeyUsage = append(extKeyUsage, x509.ExtKeyUsageClientAuth)
+		}
+
+		for _, ocsp := range strings.Split(cCtx.String("ocsp"), ",") {
+			ocspServers = append(ocspServers, strings.TrimSpace(ocsp))
+		}
 	}
 
 	return &x509.Certificate{
@@ -103,17 +144,36 @@ func NewX509Certificate(cCtx *cli.Context, names []string, caCert *x509.Certific
 		DNSNames:    names,
 		NotBefore:   time.Now().Add(-5 * time.Minute).UTC(),
 		NotAfter:    time.Now().AddDate(cCtx.Int("years-valid"), cCtx.Int("months-valid"), cCtx.Int("days-valid")),
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		ExtKeyUsage: extKeyUsage,
 		KeyUsage:    x509.KeyUsageDigitalSignature,
+		OCSPServer:  ocspServers,
 	}, nil
 }
 
 func validateDNSNames(dnsNames string) ([]string, error) {
-	names := strings.Split(dnsNames, ",")
+	names := []string{}
 	for _, name := range strings.Split(dnsNames, ",") {
-		if err := domain.Check(name); err != nil {
-			return nil, err
+		host := ""
+		if !strings.Contains(name, ":") {
+			host = name
+		} else {
+			u, err := url.Parse(name)
+			if err != nil {
+				return nil, err
+			}
+
+			host, _, err = net.SplitHostPort(u.Host)
+			if err != nil {
+				return nil, err
+			}
+
+			name = strings.TrimPrefix(host, "*.")
+			if err := domain.Check(name); err != nil {
+				return nil, err
+			}
 		}
+
+		names = append(names, host)
 	}
 	return names, nil
 }
@@ -121,21 +181,19 @@ func validateDNSNames(dnsNames string) ([]string, error) {
 func generateServerCertFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
-			Name:  "name",
-			Value: "OpenUEM Server",
-			Usage: "the common name for this certificate",
+			Name:     "name",
+			Usage:    "the common name for this certificate",
+			Required: true,
 		},
 		&cli.StringFlag{
-			Name:    "cacert",
-			Value:   "certificates/ca.cer",
-			Usage:   "the path to your CA certificate file in PEM format",
-			EnvVars: []string{"CA_CRT_FILENAME"},
+			Name:  "cacert",
+			Value: "certificates/ca.cer",
+			Usage: "the path to your CA certificate file in PEM format",
 		},
 		&cli.StringFlag{
-			Name:    "cakey",
-			Value:   "certificates/ca.key",
-			Usage:   "the path to your CA private key file in PEM format",
-			EnvVars: []string{"CA_KEY_FILENAME"},
+			Name:  "cakey",
+			Value: "certificates/ca.key",
+			Usage: "the path to your CA private key file in PEM format",
 		},
 		&cli.StringFlag{
 			Name:  "dns-names",
@@ -144,53 +202,73 @@ func generateServerCertFlags() []cli.Flag {
 		},
 		&cli.StringFlag{
 			Name:  "org",
-			Value: "My Org",
 			Usage: "organization name associated with this CA",
 		},
 		&cli.StringFlag{
 			Name:  "country",
-			Value: "ES",
 			Usage: "two-letter ISO_3166 country code",
 		},
 		&cli.StringFlag{
 			Name:  "province",
-			Value: "",
 			Usage: "the province your organization is located",
 		},
 		&cli.StringFlag{
 			Name:  "locality",
-			Value: "",
 			Usage: "the locality your organization is located",
 		},
 		&cli.StringFlag{
 			Name:  "address",
-			Value: "",
 			Usage: "the address your organization is located",
 		},
 		&cli.StringFlag{
 			Name:  "postal-code",
-			Value: "",
 			Usage: "the postal code associated with your organization's address",
 		},
 		&cli.IntFlag{
 			Name:  "years-valid",
-			Value: 5,
 			Usage: "the number of years for which the certificate will be valid",
 		},
 		&cli.IntFlag{
 			Name:  "months-valid",
-			Value: 0,
 			Usage: "the number of months for which the certificate will be valid",
 		},
 		&cli.IntFlag{
 			Name:  "days-valid",
-			Value: 0,
 			Usage: "the number of days for which the certificate will be valid",
 		},
 		&cli.StringFlag{
-			Name:  "filename",
-			Value: "server",
-			Usage: "the name to be used for the certificate and private key files",
+			Name:     "filename",
+			Usage:    "the name to be used for the certificate and private key files",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     "ocsp",
+			Usage:    "comma-separated string containing the OCSP responders used to validate certificates, e.g http://ocsp1.example.com,http://ocsp2.example.com",
+			Required: true,
+		},
+		&cli.BoolFlag{
+			Name:  "sign-ocsp",
+			Usage: "allow this certificate to sign OCSP requests",
+		},
+		&cli.BoolFlag{
+			Name:  "client-too",
+			Usage: "the certificate will be used for client authentication too",
+			Value: false,
+		},
+		&cli.StringFlag{
+			Name:  "description",
+			Value: "",
+			Usage: "an optional description for this certificate",
+		},
+		&cli.StringFlag{
+			Name:     "dburl",
+			Usage:    "the Postgres database connection url e.g (postgres://user:password@host:5432/openuem)",
+			EnvVars:  []string{"DATABASE_URL"},
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:  "dst",
+			Usage: "the folder where the certificates will be stored",
 		},
 	}
 }

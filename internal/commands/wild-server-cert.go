@@ -103,6 +103,7 @@ func NewX509WildcardCertificate(cCtx *cli.Context, domain string, caCert *x509.C
 		NotAfter:    time.Now().AddDate(cCtx.Int("years-valid"), cCtx.Int("months-valid"), cCtx.Int("days-valid")),
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		KeyUsage:    x509.KeyUsageDigitalSignature,
+		OCSPServer:  []string{cCtx.String("ocsp")},
 	}, nil
 }
 
@@ -174,6 +175,12 @@ func generateWildcardServerCertFlags() []cli.Flag {
 			Name:  "days-valid",
 			Value: 0,
 			Usage: "the number of days for which the certificate will be valid",
+		},
+		&cli.StringFlag{
+			Name:     "ocsp",
+			Usage:    "the url of the OCSP responder, e.g https://ocsp.example.com",
+			EnvVars:  []string{"OCSP"},
+			Required: true,
 		},
 	}
 }
