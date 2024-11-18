@@ -1,6 +1,6 @@
 module github.com/doncicuto/openuem-cert-manager
 
-go 1.23.1
+go 1.23.3
 
 require (
 	entgo.io/ent v0.14.1
@@ -9,8 +9,7 @@ require (
 	github.com/doncicuto/openuem_nats v0.0.0-00010101000000-000000000000
 	github.com/doncicuto/openuem_utils v0.0.0-00010101000000-000000000000
 	github.com/jackc/pgx/v5 v5.7.1
-	github.com/mattn/go-sqlite3 v1.14.24
-	github.com/urfave/cli/v2 v2.27.4
+	github.com/urfave/cli/v2 v2.27.5
 	software.sslmate.com/src/go-pkcs12 v0.5.0
 )
 
@@ -18,7 +17,7 @@ require (
 	ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/danieljoos/wincred v1.2.2 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -28,6 +27,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/klauspost/compress v1.17.2 // indirect
+	github.com/mattn/go-sqlite3 v1.14.24 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/nats-io/nats.go v1.37.0 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
@@ -41,6 +41,7 @@ require (
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 )
 
 replace github.com/doncicuto/openuem_ent => ./internal/ent
