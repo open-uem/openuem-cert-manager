@@ -8,9 +8,16 @@ import (
 )
 
 func (m *Model) SaveCertificate(serial int64, certType certificate.Type, description string, expiry time.Time, createUser bool, user string) error {
-	_, err := m.Client.Certificate.Create().SetID(serial).SetType(certType).SetDescription(description).SetExpiry(expiry).Save(context.Background())
-	if err != nil {
-		return err
+	if createUser {
+		_, err := m.Client.Certificate.Create().SetID(serial).SetType(certType).SetDescription(description).SetExpiry(expiry).SetUID(user).Save(context.Background())
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err := m.Client.Certificate.Create().SetID(serial).SetType(certType).SetDescription(description).SetExpiry(expiry).Save(context.Background())
+		if err != nil {
+			return err
+		}
 	}
 
 	if createUser {
