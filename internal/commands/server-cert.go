@@ -270,5 +270,10 @@ func generateServerCertFlags() []cli.Flag {
 			Name:  "dst",
 			Usage: "the folder where the certificates will be stored",
 		},
+		&cli.StringFlag{
+			Name:     "type",
+			Usage:    "OpenUEM client type assigned to this certificate (one of 'console', 'proxy', 'ocsp' or 'nats')",
+			Required: true,
+		},
 	}
 }

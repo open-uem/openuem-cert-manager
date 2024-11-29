@@ -179,7 +179,7 @@ func generateClientCertFlags() []cli.Flag {
 		},
 		&cli.StringFlag{
 			Name:     "type",
-			Usage:    "OpenUEM client type assigned to this certificate (one of 'console', 'notification', 'cert-manager' or 'agent')",
+			Usage:    "OpenUEM client type assigned to this certificate (one of 'console', 'notification', 'cert-manager', 'sftp' or 'agent')",
 			Required: true,
 		},
 		&cli.StringFlag{
