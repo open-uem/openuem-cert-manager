@@ -32,7 +32,7 @@ func generateClientCert(cCtx *cli.Context) error {
 	log.Printf("... checking cert type")
 	isValidType := isValidCertificateType(cCtx.String("type"))
 	if !isValidType {
-		return fmt.Errorf("type is not one of 'console', 'worker' or 'agent'")
+		return fmt.Errorf("type is not one of 'console', 'worker', 'sftp' or 'agent'")
 	}
 
 	log.Printf("... connecting to database")
@@ -117,7 +117,7 @@ func generateClientCert(cCtx *cli.Context) error {
 }
 
 func isValidCertificateType(certType string) bool {
-	validTypes := []string{"console", "worker", "agent"}
+	validTypes := []string{"console", "worker", "agent", "sftp"}
 	return slices.Contains(validTypes, certType)
 }
 
