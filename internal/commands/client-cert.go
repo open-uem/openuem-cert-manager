@@ -15,6 +15,7 @@ import (
 
 	"github.com/doncicuto/openuem-cert-manager/internal/models"
 	"github.com/doncicuto/openuem_ent/certificate"
+	"github.com/doncicuto/openuem_ent/server"
 	"github.com/doncicuto/openuem_utils"
 	"github.com/urfave/cli/v2"
 )
@@ -39,6 +40,11 @@ func generateClientCert(cCtx *cli.Context) error {
 	model, err := models.New(cCtx.String("dburl"))
 	if err != nil {
 		return fmt.Errorf("could not connect to database, reason: %s", err.Error())
+	}
+
+	// Save component version
+	if err := model.SetComponent(server.ComponentConsole, VERSION, CHANNEL); err != nil {
+		log.Fatalf("[ERROR]: could not save component information")
 	}
 
 	log.Printf("... reading CA cert PEM file")
@@ -117,7 +123,7 @@ func generateClientCert(cCtx *cli.Context) error {
 }
 
 func isValidCertificateType(certType string) bool {
-	validTypes := []string{"console", "worker", "agent", "sftp"}
+	validTypes := []string{"console", "worker", "agent", "sftp", "updater"}
 	return slices.Contains(validTypes, certType)
 }
 

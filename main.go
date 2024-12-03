@@ -31,7 +31,6 @@ func getCommands() []*cli.Command {
 		commands.CreateCA(),
 		commands.RevokeCertificate(),
 		commands.CreateServerCertificate(),
-		commands.CreateWilcardServerCertificate(),
 		commands.GetCertificateSerial(),
 	}
 }
