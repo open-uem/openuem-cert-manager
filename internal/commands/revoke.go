@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/doncicuto/openuem-cert-manager/internal/models"
-	"github.com/doncicuto/openuem_ent/component"
 	"github.com/urfave/cli/v2"
 )
 
@@ -54,11 +53,6 @@ func revokeCert(cCtx *cli.Context) error {
 		return fmt.Errorf("could not connect to database, reason: %s", err.Error())
 	}
 	log.Printf("... connected to database")
-
-	// Save component version
-	if err := model.SetComponent(component.ComponentCertManager, VERSION, CHANNEL); err != nil {
-		log.Fatalf("[ERROR]: could not save component information")
-	}
 
 	serial, err := strconv.ParseInt("0x"+cCtx.String("serial"), 0, 64)
 	if err != nil {

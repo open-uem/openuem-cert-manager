@@ -5,42 +5,27 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
-	"github.com/doncicuto/openuem-cert-manager/internal/models"
-	"github.com/doncicuto/openuem_ent/certificate"
 	"github.com/doncicuto/openuem_utils"
 	"github.com/urfave/cli/v2"
+	"software.sslmate.com/src/go-pkcs12"
 )
 
-func CreateClientCertificate() *cli.Command {
+func CreateCodeSigningCertificate() *cli.Command {
 	return &cli.Command{
-		Name:   "client-cert",
-		Usage:  "Generate a certicate file and a private key file both in PEM format for OpenUEM's mutual TLS authentication",
-		Action: generateClientCert,
-		Flags:  generateClientCertFlags(),
+		Name:   "code-signing-cert",
+		Usage:  "Generate a certicate file and a private key file both in PEM format to sign OpenUEM installers (testing only)",
+		Action: generateCodeSigningCert,
+		Flags:  generateCodeSigningCertFlags(),
 	}
 }
 
-func generateClientCert(cCtx *cli.Context) error {
-	log.Printf("... checking cert type")
-	isValidType := isValidCertificateType(cCtx.String("type"))
-	if !isValidType {
-		return fmt.Errorf("type is not one of 'console', 'worker', 'sftp' or 'agent'")
-	}
-
-	log.Printf("... connecting to database")
-	model, err := models.New(cCtx.String("dburl"))
-	if err != nil {
-		return fmt.Errorf("could not connect to database, reason: %s", err.Error())
-	}
-
+func generateCodeSigningCert(cCtx *cli.Context) error {
 	log.Printf("... reading CA cert PEM file")
 	caCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
@@ -60,7 +45,7 @@ func generateClientCert(cCtx *cli.Context) error {
 	}
 
 	log.Printf("... generating certificate's template")
-	cert, err := NewX509ClientCertificate(cCtx, caCert)
+	cert, err := NewX509CodeSigningCertificate(cCtx, caCert)
 	if err != nil {
 		return err
 	}
@@ -77,8 +62,13 @@ func generateClientCert(cCtx *cli.Context) error {
 		return err
 	}
 
-	log.Printf("... saving certificate info to database")
-	err = model.SaveCertificate(cert.SerialNumber.Int64(), certificate.Type(cCtx.String("type")), cCtx.String("description"), cert.NotAfter, false, "")
+	log.Printf("... creating your PKCS12 file")
+
+	pass := cCtx.String("pass")
+	if pass == "" {
+		pass = pkcs12.DefaultPassword
+	}
+	pfxBytes, err := pkcs12.Modern.Encode(certPrivKey, cert, []*x509.Certificate{caCert}, pass)
 	if err != nil {
 		return err
 	}
@@ -92,36 +82,16 @@ func generateClientCert(cCtx *cli.Context) error {
 		path = filepath.Join(cwd, "certificates")
 	}
 
-	keyFilename := filepath.Join(path, cCtx.String("filename")+".key")
-	log.Printf("... saving your private key file to %s", keyFilename)
-	err = openuem_utils.SavePrivateKey(certPrivKey, keyFilename)
+	err = openuem_utils.SavePFX(pfxBytes, filepath.Join(path, cCtx.String("filename")+".pfx"))
 	if err != nil {
-		if err := model.DeleteCertificate(cert.SerialNumber.Int64()); err != nil {
-			log.Printf("... could not delete certificate from database %s", keyFilename)
-		}
 		return err
 	}
 
-	certFilename := filepath.Join(path, cCtx.String("filename")+".cer")
-	log.Printf("... saving your certificate file to %s", certFilename)
-	err = openuem_utils.SaveCertificate(certBytes, certFilename)
-	if err != nil {
-		if err := model.DeleteCertificate(cert.SerialNumber.Int64()); err != nil {
-			log.Printf("... could not delete certificate from database %s", keyFilename)
-		}
-		return err
-	}
-
-	log.Printf("✅ Done! Your %s certificate and its private key has been generated and stored\n\n", cCtx.String("type"))
+	log.Println("✅ Done! Your code signing certificate as a PFX file has been generated")
 	return nil
 }
 
-func isValidCertificateType(certType string) bool {
-	validTypes := []string{"console", "worker", "agent", "sftp", "updater"}
-	return slices.Contains(validTypes, certType)
-}
-
-func NewX509ClientCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x509.Certificate, error) {
+func NewX509CodeSigningCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x509.Certificate, error) {
 	serialNumber, err := openuem_utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
@@ -147,13 +117,13 @@ func NewX509ClientCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (
 		Issuer:      serverCert.Subject,
 		NotBefore:   time.Now().Add(-5 * time.Minute).UTC(),
 		NotAfter:    time.Now().AddDate(cCtx.Int("years-valid"), cCtx.Int("months-valid"), cCtx.Int("days-valid")),
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageCodeSigning},
 		KeyUsage:    x509.KeyUsageDigitalSignature,
 		OCSPServer:  ocspServers,
 	}, nil
 }
 
-func generateClientCertFlags() []cli.Flag {
+func generateCodeSigningCertFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:     "name",
@@ -175,11 +145,6 @@ func generateClientCertFlags() []cli.Flag {
 		&cli.StringFlag{
 			Name:     "filename",
 			Usage:    "filename to be used for certificate and private key files",
-			Required: true,
-		},
-		&cli.StringFlag{
-			Name:     "type",
-			Usage:    "OpenUEM client type assigned to this certificate (one of 'console', 'notification', 'cert-manager', 'sftp' or 'agent')",
 			Required: true,
 		},
 		&cli.StringFlag{
@@ -239,14 +204,12 @@ func generateClientCertFlags() []cli.Flag {
 			Required: true,
 		},
 		&cli.StringFlag{
-			Name:     "dburl",
-			Usage:    "the Postgres database connection url e.g (postgres://user:password@host:5432/openuem)",
-			EnvVars:  []string{"DATABASE_URL"},
-			Required: true,
-		},
-		&cli.StringFlag{
 			Name:  "dst",
 			Usage: "the folder where the certificates will be stored",
+		},
+		&cli.StringFlag{
+			Name:  "pass",
+			Usage: "the password that will be asked when the certificates is imported (default: changeit)",
 		},
 	}
 }

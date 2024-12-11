@@ -32,5 +32,6 @@ func getCommands() []*cli.Command {
 		commands.RevokeCertificate(),
 		commands.CreateServerCertificate(),
 		commands.GetCertificateSerial(),
+		commands.CreateCodeSigningCertificate(),
 	}
 }
