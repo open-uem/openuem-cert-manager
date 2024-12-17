@@ -99,7 +99,7 @@ func generateServerCert(cCtx *cli.Context) error {
 	}
 
 	log.Printf("... saving certificate info to database")
-	err = model.SaveCertificate(cert.SerialNumber.Int64(), certificate.Type(cCtx.String("filename")), cCtx.String("description"), cert.NotAfter, false, "")
+	err = model.SaveCertificate(cert.SerialNumber.Int64(), certificate.Type(cCtx.String("type")), cCtx.String("description"), cert.NotAfter, false, "")
 	if err != nil {
 		return err
 	}
