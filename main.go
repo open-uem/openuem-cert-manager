@@ -13,7 +13,7 @@ func main() {
 		Name:      "openuem-cert-manager",
 		Commands:  getCommands(),
 		Usage:     "Generate CA and server certificates required by OpenUEM",
-		Authors:   []*cli.Author{{Name: "Miguel Angel Alvarez Cabrerizo", Email: "mcabrerizo@sologitops.com"}},
+		Authors:   []*cli.Author{{Name: "Miguel Angel Alvarez Cabrerizo", Email: "mcabrerizo@openuem.eu"}},
 		Copyright: "2024 - Miguel Angel Alvarez Cabrerizo <https://github.com/doncicuto>",
 	}
 
