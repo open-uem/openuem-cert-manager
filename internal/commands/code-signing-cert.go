@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/open-uem/utils"
 	"github.com/urfave/cli/v2"
 	"software.sslmate.com/src/go-pkcs12"
 )
@@ -26,13 +27,13 @@ func CreateCodeSigningCertificate() *cli.Command {
 
 func generateCodeSigningCert(cCtx *cli.Context) error {
 	log.Printf("... reading CA cert PEM file")
-	caCert, err := openuem - utils.ReadPEMCertificate(cCtx.String("cacert"))
+	caCert, err := utils.ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading CA private key PEM file")
-	caPrivKey, err := openuem - utils.ReadPEMPrivateKey(cCtx.String("cakey"))
+	caPrivKey, err := utils.ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
@@ -81,7 +82,7 @@ func generateCodeSigningCert(cCtx *cli.Context) error {
 		path = filepath.Join(cwd, "certificates")
 	}
 
-	err = openuem - utils.SavePFX(pfxBytes, filepath.Join(path, cCtx.String("filename")+".pfx"))
+	err = utils.SavePFX(pfxBytes, filepath.Join(path, cCtx.String("filename")+".pfx"))
 	if err != nil {
 		return err
 	}
@@ -91,7 +92,7 @@ func generateCodeSigningCert(cCtx *cli.Context) error {
 }
 
 func NewX509CodeSigningCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x509.Certificate, error) {
-	serialNumber, err := openuem - utils.GenerateSerialNumber()
+	serialNumber, err := utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}
