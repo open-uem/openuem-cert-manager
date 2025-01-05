@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/open-uem/ent/certificate"
+	"github.com/open-uem/nats"
 	"github.com/open-uem/openuem-cert-manager/internal/models"
-	"github.com/open-uem/openuem_ent/certificate"
-	"github.com/open-uem/openuem_nats"
-	"github.com/open-uem/openuem_utils"
+	"github.com/open-uem/utils"
 	"github.com/urfave/cli/v2"
 	"software.sslmate.com/src/go-pkcs12"
 )
@@ -37,13 +37,13 @@ func generateUserCert(cCtx *cli.Context) error {
 	}
 
 	log.Printf("... reading your CA cert PEM file")
-	caCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("cacert"))
+	caCert, err := utils.ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading your CA private key PEM file")
-	caPrivKey, err := openuem_utils.ReadPEMPrivateKey(cCtx.String("cakey"))
+	caPrivKey, err := utils.ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func generateUserCert(cCtx *cli.Context) error {
 		ocspServers = append(ocspServers, strings.TrimSpace(ocsp))
 	}
 
-	certRequest := openuem_nats.CertificateRequest{
+	certRequest := nats.CertificateRequest{
 		Username:       cCtx.String("username"),
 		Organization:   cCtx.String("org"),
 		Country:        cCtx.String("country"),
@@ -118,7 +118,7 @@ func generateUserCert(cCtx *cli.Context) error {
 		path = filepath.Join(cwd, "certificates")
 	}
 
-	err = openuem_utils.SavePFX(pfxBytes, filepath.Join(path, cCtx.String("username")+".pfx"))
+	err = utils.SavePFX(pfxBytes, filepath.Join(path, cCtx.String("username")+".pfx"))
 	if err != nil {
 		return err
 	}
@@ -127,8 +127,8 @@ func generateUserCert(cCtx *cli.Context) error {
 	return nil
 }
 
-func NewX509UserCertificate(certRequest openuem_nats.CertificateRequest, serverCert *x509.Certificate) (*x509.Certificate, error) {
-	serialNumber, err := openuem_utils.GenerateSerialNumber()
+func NewX509UserCertificate(certRequest nats.CertificateRequest, serverCert *x509.Certificate) (*x509.Certificate, error) {
+	serialNumber, err := utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}

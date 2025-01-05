@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/open-uem/openuem_utils"
 	"github.com/urfave/cli/v2"
 )
 
@@ -28,7 +27,7 @@ func getCertificateSerialFlags() []cli.Flag {
 }
 
 func getCertificateSerial(cCtx *cli.Context) error {
-	cert, err := openuem_utils.ReadPEMCertificate(cCtx.String("path"))
+	cert, err := openuem - utils.ReadPEMCertificate(cCtx.String("path"))
 	if err != nil {
 		return err
 	}

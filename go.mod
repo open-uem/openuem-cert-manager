@@ -5,9 +5,6 @@ go 1.23.4
 require (
 	entgo.io/ent v0.14.1
 	github.com/chmike/domain v1.1.0
-	github.com/open-uem/openuem_ent v0.0.0-00010101000000-000000000000
-	github.com/open-uem/openuem_nats v0.0.0-00010101000000-000000000000
-	github.com/open-uem/openuem_utils v0.0.0-00010101000000-000000000000
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/urfave/cli/v2 v2.27.5
 	software.sslmate.com/src/go-pkcs12 v0.5.0
@@ -43,9 +40,3 @@ require (
 	golang.org/x/text v0.18.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
-
-replace github.com/open-uem/openuem_ent => ./internal/ent
-
-replace github.com/open-uem/openuem_utils => ./internal/utils
-
-replace github.com/open-uem/openuem_nats => ./internal/nats

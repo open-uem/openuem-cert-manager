@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/open-uem/openuem_ent/certificate"
+	"github.com/open-uem/ent/certificate"
 )
 
 func (m *Model) SaveCertificate(serial int64, certType certificate.Type, description string, expiry time.Time, createUser bool, user string) error {

@@ -13,9 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/open-uem/ent/certificate"
 	"github.com/open-uem/openuem-cert-manager/internal/models"
-	"github.com/open-uem/openuem_ent/certificate"
-	"github.com/open-uem/openuem_utils"
 	"github.com/urfave/cli/v2"
 )
 
@@ -42,13 +41,13 @@ func generateClientCert(cCtx *cli.Context) error {
 	}
 
 	log.Printf("... reading CA cert PEM file")
-	caCert, err := openuem_utils.ReadPEMCertificate(cCtx.String("cacert"))
+	caCert, err := openuem - utils.ReadPEMCertificate(cCtx.String("cacert"))
 	if err != nil {
 		return err
 	}
 
 	log.Printf("... reading CA private key PEM file")
-	caPrivKey, err := openuem_utils.ReadPEMPrivateKey(cCtx.String("cakey"))
+	caPrivKey, err := openuem - utils.ReadPEMPrivateKey(cCtx.String("cakey"))
 	if err != nil {
 		return err
 	}
@@ -94,7 +93,7 @@ func generateClientCert(cCtx *cli.Context) error {
 
 	keyFilename := filepath.Join(path, cCtx.String("filename")+".key")
 	log.Printf("... saving your private key file to %s", keyFilename)
-	err = openuem_utils.SavePrivateKey(certPrivKey, keyFilename)
+	err = openuem - utils.SavePrivateKey(certPrivKey, keyFilename)
 	if err != nil {
 		if err := model.DeleteCertificate(cert.SerialNumber.Int64()); err != nil {
 			log.Printf("... could not delete certificate from database %s", keyFilename)
@@ -104,7 +103,7 @@ func generateClientCert(cCtx *cli.Context) error {
 
 	certFilename := filepath.Join(path, cCtx.String("filename")+".cer")
 	log.Printf("... saving your certificate file to %s", certFilename)
-	err = openuem_utils.SaveCertificate(certBytes, certFilename)
+	err = openuem - utils.SaveCertificate(certBytes, certFilename)
 	if err != nil {
 		if err := model.DeleteCertificate(cert.SerialNumber.Int64()); err != nil {
 			log.Printf("... could not delete certificate from database %s", keyFilename)
@@ -122,7 +121,7 @@ func isValidCertificateType(certType string) bool {
 }
 
 func NewX509ClientCertificate(cCtx *cli.Context, serverCert *x509.Certificate) (*x509.Certificate, error) {
-	serialNumber, err := openuem_utils.GenerateSerialNumber()
+	serialNumber, err := openuem - utils.GenerateSerialNumber()
 	if err != nil {
 		return nil, err
 	}
