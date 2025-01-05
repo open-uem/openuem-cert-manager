@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/doncicuto/openuem-cert-manager/internal/models"
+	"github.com/open-uem/openuem-cert-manager/internal/models"
 	"github.com/urfave/cli/v2"
 )
 

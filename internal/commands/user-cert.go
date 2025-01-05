@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/doncicuto/openuem-cert-manager/internal/models"
-	"github.com/doncicuto/openuem_ent/certificate"
-	"github.com/doncicuto/openuem_nats"
-	"github.com/doncicuto/openuem_utils"
+	"github.com/open-uem/openuem-cert-manager/internal/models"
+	"github.com/open-uem/openuem_ent/certificate"
+	"github.com/open-uem/openuem_nats"
+	"github.com/open-uem/openuem_utils"
 	"github.com/urfave/cli/v2"
 	"software.sslmate.com/src/go-pkcs12"
 )

@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/doncicuto/openuem-cert-manager/internal/commands"
+	"github.com/open-uem/openuem-cert-manager/internal/commands"
 	"github.com/urfave/cli/v2"
 )
 

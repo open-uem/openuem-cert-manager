@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/doncicuto/openuem_utils"
+	"github.com/open-uem/openuem_utils"
 	"github.com/urfave/cli/v2"
 )
 
