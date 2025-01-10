@@ -14,7 +14,7 @@ func main() {
 		Commands:  getCommands(),
 		Usage:     "Generate CA and server certificates required by OpenUEM",
 		Authors:   []*cli.Author{{Name: "Miguel Angel Alvarez Cabrerizo", Email: "mcabrerizo@openuem.eu"}},
-		Copyright: "2024 - Miguel Angel Alvarez Cabrerizo <https://github.com/doncicuto>",
+		Copyright: "2025 - Miguel Angel Alvarez Cabrerizo <https://github.com/doncicuto>",
 	}
 
 	if err := app.Run(os.Args); err != nil {
