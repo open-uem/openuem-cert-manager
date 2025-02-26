@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.14.1
 	github.com/chmike/domain v1.1.0
 	github.com/jackc/pgx/v5 v5.7.1
-	github.com/open-uem/ent v0.0.0-20250214102310-33a8a847d229
+	github.com/open-uem/ent v0.0.0-20250225084914-d46c51bc6f85
 	github.com/open-uem/nats v0.0.0-20250124054349-0a9058f44dfe
 	github.com/open-uem/utils v0.0.0-20250214102216-df5a38667d0a
 	github.com/urfave/cli/v2 v2.27.5
