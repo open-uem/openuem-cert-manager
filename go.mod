@@ -6,15 +6,15 @@ require (
 	entgo.io/ent v0.14.4
 	github.com/chmike/domain v1.1.0
 	github.com/jackc/pgx/v5 v5.7.4
-	github.com/open-uem/ent v0.0.0-20250407090036-eab9e96db9ec
-	github.com/open-uem/nats v0.0.0-20250407085943-422b32fe49f0
-	github.com/open-uem/utils v0.0.0-20250407085447-f3730b9ef3ac
+	github.com/open-uem/ent v0.0.0-20250424154135-51cb9044486a
+	github.com/open-uem/nats v0.0.0-20250424154048-a772eef61381
+	github.com/open-uem/utils v0.0.0-20250424154005-aa7e1df31e6c
 	github.com/urfave/cli/v2 v2.27.6
 	software.sslmate.com/src/go-pkcs12 v0.5.0
 )
 
 require (
-	ariga.io/atlas v0.32.0 // indirect
+	ariga.io/atlas v0.32.1 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
@@ -30,8 +30,8 @@ require (
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/nats-io/nats.go v1.41.0 // indirect
-	github.com/nats-io/nkeys v0.4.10 // indirect
+	github.com/nats-io/nats.go v1.41.2 // indirect
+	github.com/nats-io/nkeys v0.4.11 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
@@ -42,6 +42,6 @@ require (
 	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
-	golang.org/x/tools v0.31.0 // indirect
+	golang.org/x/tools v0.32.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
