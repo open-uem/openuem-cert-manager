@@ -1,14 +1,14 @@
 module github.com/open-uem/openuem-cert-manager
 
-go 1.24.2
+go 1.24.4
 
 require (
 	entgo.io/ent v0.14.4
 	github.com/chmike/domain v1.1.0
 	github.com/jackc/pgx/v5 v5.7.4
-	github.com/open-uem/ent v0.0.0-20250513061100-3deef4bb3081
+	github.com/open-uem/ent v0.0.0-20250607102336-cee6366c74d8
 	github.com/open-uem/nats v0.0.0-20250514125548-3bae96c53080
-	github.com/open-uem/utils v0.0.0-20250424154005-aa7e1df31e6c
+	github.com/open-uem/utils v0.0.0-20250611060546-cab35b3801b9
 	github.com/urfave/cli/v2 v2.27.6
 	software.sslmate.com/src/go-pkcs12 v0.5.0
 )
