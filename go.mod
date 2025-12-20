@@ -1,14 +1,14 @@
 module github.com/open-uem/openuem-cert-manager
 
-go 1.25.3
+go 1.25.5
 
 require (
 	entgo.io/ent v0.14.5
 	github.com/chmike/domain v1.1.0
 	github.com/jackc/pgx/v5 v5.7.6
-	github.com/open-uem/ent v0.0.0-20251017131532-38c6f9d2010c
-	github.com/open-uem/nats v0.0.0-20251017130656-df38cff592ee
-	github.com/open-uem/utils v0.0.0-20251014101747-824dc3574744
+	github.com/open-uem/ent v0.0.0-20251220072124-b7c9bbc5c91f
+	github.com/open-uem/nats v0.0.0-20251220104614-efae26e98557
+	github.com/open-uem/utils v0.0.0-20251220104704-89477718ebb2
 	github.com/urfave/cli/v2 v2.27.7
 	software.sslmate.com/src/go-pkcs12 v0.6.0
 )
@@ -27,11 +27,13 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
-	github.com/klauspost/compress v1.18.1 // indirect
+	github.com/klauspost/compress v1.18.2 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/nats-io/nats.go v1.47.0 // indirect
 	github.com/nats-io/nkeys v0.4.11 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
+	github.com/open-uem/openuem-ansible-config v0.0.0-20250710075757-9ef6e3390073 // indirect
+	github.com/open-uem/wingetcfg v0.0.0-20251011111407-80e823d91ea5 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
