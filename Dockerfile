@@ -1,4 +1,4 @@
-FROM golang:1.25.3 AS build
+FROM golang:1.25.5 AS build
 COPY . ./
 COPY --chmod=755 ./scripts/create-certs.sh /bin/create-certs.sh
 COPY --chmod=755 ./scripts/generate-nats-conf.sh /bin/generate-nats-conf.sh
