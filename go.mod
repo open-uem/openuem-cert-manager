@@ -8,7 +8,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/open-uem/ent v0.0.0-20251220072124-b7c9bbc5c91f
 	github.com/open-uem/nats v0.0.0-20251220104614-efae26e98557
-	github.com/open-uem/utils v0.0.0-20251220104704-89477718ebb2
+	github.com/open-uem/utils v0.0.0-20251221104611-c55d64529212
 	github.com/urfave/cli/v2 v2.27.7
 	software.sslmate.com/src/go-pkcs12 v0.6.0
 )
