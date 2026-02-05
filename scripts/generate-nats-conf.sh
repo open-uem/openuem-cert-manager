@@ -19,6 +19,30 @@ tls {
   ocsp_peer: true
 }
 
+debug: ${NATS_DEBUG}
+EOF
+
+if [ -n "${NATS_WEBSOCKETPORT}" ]; then 
+
+cat << EOF >>  /etc/nats/nats.cfg
+
+websocket {    
+    port: ${NATS_WEBSOCKETPORT}
+
+    tls {
+      cert_file: "/etc/nats-certificates/nats.cer"
+      key_file: "/etc/nats-certificates/nats.key"
+      ca_file:   "/etc/nats-certificates/ca.cer"
+      verify_and_map: true
+      ocsp_peer: true
+    }
+}
+EOF
+
+fi
+
+cat << EOF >> /etc/nats/nats.cfg
+
 authorization: {  
   users = [
     {user: "CN=OpenUEM Cert-Manager Worker,OU=worker,O=${ORGNAME},POSTALCODE=,STREET=${ORGADDRESS},L=${ORGLOCALITY},ST=${ORGPROVINCE},C=${COUNTRY},", permissions: {
