@@ -18,12 +18,16 @@ tls {
   verify_and_map: true
   ocsp_peer: true
 }
+EOF
+
+if [ "${NATS_DEBUG}" == "true" ]; then 
+cat << EOF > /etc/nats/nats.cfg
 
 debug: ${NATS_DEBUG}
 EOF
+fi
 
 if [ -n "${NATS_WEBSOCKETPORT}" ]; then 
-
 cat << EOF >>  /etc/nats/nats.cfg
 
 websocket {    
@@ -38,7 +42,6 @@ websocket {
     }
 }
 EOF
-
 fi
 
 cat << EOF >> /etc/nats/nats.cfg
