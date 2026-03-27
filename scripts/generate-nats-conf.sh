@@ -59,7 +59,7 @@ authorization: {
       }
     }},
     {user: "CN=OpenUEM Console,O=${ORGNAME},POSTALCODE=,STREET=${ORGADDRESS},L=${ORGLOCALITY},ST=${ORGPROVINCE},C=${COUNTRY},", permissions: {
-      publish: ["agent.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "server.update.>", "\$JS.API.STREAM.CREATE.>", "\$JS.API.STREAM.UPDATE.>", "\$JS.API.STREAM.INFO.SERVERS_STREAM"]
+      publish: ["agent.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "server.update.>", "\$JS.API.STREAM.CREATE.>", "\$JS.API.STREAM.UPDATE.>", "\$JS.API.STREAM.INFO.SERVERS_STREAM", "\$JS.API.INFO", "\$JS.API.STREAM.INFO.KV_leaders", "\$JS.API.DIRECT.GET.KV_leaders.>", "\$JS.API.CONSUMER.CREATE.KV_leaders.>", "\$KV.leaders.openuem"]
     }},
     {user: "CN=OpenUEM Updater Client,OU=updater,O=${ORGNAME},POSTALCODE=,STREET=${ORGADDRESS},L=${ORGLOCALITY},ST=${ORGPROVINCE},C=${COUNTRY},", permissions: {
       sub: {
