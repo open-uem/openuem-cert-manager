@@ -59,7 +59,7 @@ authorization: {
       }
     }},
     {user: "CN=OpenUEM Console,O=${ORGNAME},POSTALCODE=,STREET=${ORGADDRESS},L=${ORGLOCALITY},ST=${ORGPROVINCE},C=${COUNTRY},", permissions: {
-      publish: ["agent.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "server.update.>", "\$JS.API.STREAM.CREATE.>", "\$JS.API.STREAM.UPDATE.>", "\$JS.API.STREAM.INFO.SERVERS_STREAM", "\$JS.API.INFO", "\$JS.API.STREAM.INFO.KV_leaders", "\$JS.API.DIRECT.GET.KV_leaders.>", "\$JS.API.CONSUMER.CREATE.KV_leaders.>", "\$KV.leaders.openuem"]
+      publish: ["agent.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "server.update.>", "\$JS.API.STREAM.CREATE.>", "\$JS.API.STREAM.UPDATE.>", "\$JS.API.STREAM.INFO.SERVERS_STREAM", "\$JS.API.STREAM.MSG.GET.AGENTS_STREAM", "\$JS.API.INFO", "\$JS.API.STREAM.INFO.KV_leaders", "\$JS.API.DIRECT.GET.KV_leaders.>", "\$JS.API.CONSUMER.CREATE.KV_leaders.>", "\$KV.leaders.openuem"]
     }},
     {user: "CN=OpenUEM Updater Client,OU=updater,O=${ORGNAME},POSTALCODE=,STREET=${ORGADDRESS},L=${ORGLOCALITY},ST=${ORGPROVINCE},C=${COUNTRY},", permissions: {
       sub: {
@@ -73,7 +73,7 @@ authorization: {
     }},
     {user: "CN=OpenUEM Agent,OU=agent,O=${ORGNAME},POSTALCODE=,STREET=${ORGADDRESS},L=${ORGLOCALITY},ST=${ORGPROVINCE},C=${COUNTRY},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "agent.update.>", "agent.uninstall.>", "agentrollback.>", "agent.certificate", "agent.newconfig", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.>", "agent.disable.>", "agent.report.>", "agent.installpackage.>", "agent.settings.>", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management", "agent.restart.> openuem-agent-management", "agent.poweroff.> openuem-agent-management", "agent.reboot.> openuem-agent-management", "agent.removeprinter.> openuem-agent-management", "agent.defaultprinter.> openuem-agent-management", "agent.rustdesk.> openuem-agent-management", "agent.startsftp.> openuem-agent-management", "agent.netbird.> openuem-agent-management",  "agent.ping.> openuem-agent-management", "agent.ansible.> openuem-agent-management", "agent.windowstask.> openuem-agent-management", "agent.runprofile.> openuem-agent-management" ]
+        allow: ["_INBOX.>", "agent.update.>", "agent.uninstall.>", "agentrollback.>", "agent.certificate", "agent.newconfig", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.>", "agent.disable.>", "agent.report.>", "agent.installpackage.>", "agent.settings.>", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management", "agent.restart.> openuem-agent-management", "agent.poweroff.> openuem-agent-management", "agent.reboot.> openuem-agent-management", "agent.removeprinter.> openuem-agent-management", "agent.defaultprinter.> openuem-agent-management", "agent.rustdesk.> openuem-agent-management", "agent.startsftp.> openuem-agent-management", "agent.netbird.> openuem-agent-management",  "agent.ping.> openuem-agent-management", "agent.ansible.> openuem-agent-management", "agent.windowstask.> openuem-agent-management", "agent.runprofile.> openuem-agent-management", "agent.listpackageupdates.> openuem-agent-management", "agent.updatepackages.> openuem-agent-management" ]
       },
       publish: ["report", "_INBOX.>", "deployresult", "agentconfig", "wingetcfg.>", "ansiblecfg.>", "\$JS.API.STREAM.INFO.AGENTS_STREAM", "\$JS.API.CONSUMER.CREATE.>", "\$JS.API.CONSUMER.MSG.NEXT.>", "\$JS.ACK.>", "\$JS.NACK.>"]
     }},
