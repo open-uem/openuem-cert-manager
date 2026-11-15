@@ -102,7 +102,7 @@ func generateUserCert(cCtx *cli.Context) error {
 	}
 
 	log.Printf("... saving certificate info to database")
-	err = model.SaveCertificate(cert.SerialNumber.Int64(), certificate.Type("user"), cCtx.String("description"), cert.NotAfter, true, certRequest.Username)
+	err = model.SaveCertificate(cert.SerialNumber.Int64(), certificate.Type("user"), cCtx.String("description"), cert.NotAfter, true, certRequest.Username, cCtx.Bool("force"))
 	if err != nil {
 		return err
 	}
@@ -154,6 +154,12 @@ func NewX509UserCertificate(certRequest nats.CertificateRequest, serverCert *x50
 
 func generateUserCertFlags() []cli.Flag {
 	return []cli.Flag{
+		&cli.BoolFlag{
+			Name:    "force",
+			Value:   false,
+			Usage:   "update the database record when the user already exists (regenerate the certificate)",
+			EnvVars: []string{"FORCE"},
+		},
 		&cli.StringFlag{
 			Name:    "cacert",
 			Value:   "certificates/ca.cer",
