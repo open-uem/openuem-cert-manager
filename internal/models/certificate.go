@@ -7,7 +7,7 @@ import (
 	"github.com/open-uem/ent/certificate"
 )
 
-func (m *Model) SaveCertificate(serial int64, certType certificate.Type, description string, expiry time.Time, createUser bool, user string) error {
+func (m *Model) SaveCertificate(serial int64, certType certificate.Type, description string, expiry time.Time, createUser bool, user string, force bool) error {
 	if createUser {
 		_, err := m.Client.Certificate.Create().SetID(serial).SetType(certType).SetDescription(description).SetExpiry(expiry).SetUID(user).Save(context.Background())
 		if err != nil {
@@ -22,7 +22,13 @@ func (m *Model) SaveCertificate(serial int64, certType certificate.Type, descrip
 
 	if createUser {
 		if _, err := m.Client.User.Create().SetID(user).SetName(description).SetExpiry(expiry).SetRegister("users.completed").Save(context.Background()); err != nil {
-			return err
+			if !force {
+				return err
+			}
+			// #15: regenerate the certificate for an existing user
+			if _, err := m.Client.User.UpdateOneID(user).SetName(description).SetExpiry(expiry).Save(context.Background()); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
